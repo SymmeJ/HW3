@@ -10,8 +10,11 @@ rm(list = ls())
 setwd(getwd())
 ```
 
+# (Q1)
 
-# (1)
+Git link: https://github.com/SymmeJ/HW3
+
+## (1)
 
 Global level git configuration files locate in $C:\backslash Users\backslash username\backslash .gitconfig$ and lobal level git configuration files locate in $<git-repo>\backslash .git\backslash config$ for Windows.\\
 
@@ -29,7 +32,7 @@ user.name=Symmes
 
 user.email=haichao1121$@$gmail.com
 
-# (2)
+## (2)
 
 ```{r}
 readLines = function(n1,n2){
@@ -43,20 +46,21 @@ res
 }
 ```
 
-# (3)
+## (3)
 
 ```{r}
-df1 = data.frame(row.names = c("state","county_code","employee_size","sales_volume","census_tract"))
+res3 = data.frame(row.names = c("state","county_code","employee_size","sales_volume","census_tract"))
 for(i in 1:15){
   df = readLines(20000*(i-1)+1,20000*i+1)
-  df1 = rbind(df1,df)
+  res3 = rbind(res3,df)
 }
+res3 = res3[res3$state == 'AL',]
 library(dplyr)
 df1 = summarise(group_by(res3,census_tract),sum(employee_size),sum(sales_volume))
 names(df1) <- c("census_tract","employee_size","sales_volume")
 ```
 
-# (4)
+## (4)
 
 ```{r}
 library(RMySQL)
@@ -65,17 +69,17 @@ mydb <- dbConnect(MySQL(), user='root', password='jhcbywzfb7', dbname='Hw3db',ho
 dbWriteTable(mydb, value = df1, name = "df1", overwrite = TRUE)
 ```
 
-# (5)
+## (5)
 
 ```{r}
 dbGetQuery(mydb, 'SELECT census_tract FROM df1 ORDER BY sales_volume DESC LIMIT 10')
 ```
 
-# (6)
+## (6)
 
 On git by "git checkout -b new_branch".
 
-# (7)
+## (7)
 
 ```{r}
 dat7 = read.csv("Data/AL.csv", header = TRUE)
@@ -89,17 +93,17 @@ names(dat7) <- c("census_2010_tract","wealth_finder_score","find_div_1000","esti
 df2 = dat7
 ```
 
-# (8)
+## (8)
 
 ```{r}
-dbWriteTable(mydb, value = df2, name = "df2",, overwrite = TRUE)
+dbWriteTable(mydb, value = df2, name = "df2", overwrite = TRUE)
 ```
 
-# (9)
+## (9)
 
 HEAD is the current branch.
 
-# (10)
+## (10)
 
 ```{r}
 library(tidycensus)
@@ -113,7 +117,7 @@ df3 = merge(x = dat10, y = tract, by.x = "GEOID", by.y = "GEOID", all.x = TRUE, 
 dbWriteTable(mydb, value = df3, name = "df3", overwrite = TRUE)
 ```
 
-# (11)
+## (11)
 
 ```{r}
 df23 = dbGetQuery(mydb, 'SELECT df3.white, df3.black, df3.asian, df3.tract, 
@@ -124,5 +128,70 @@ df11 = dbGetQuery(mydb, 'SELECT * FROM df1')
 df = merge(x = df23, y = df11[,-1], by.x = "tract", by.y = "census_tract",all.x = TRUE, all.y = FALSE)
 ```
 
-# (12)
+## (12)
+
+% git log
+commit c88a02deacfb3835cf9e64c6fb68c42d6c0f416b (HEAD -> new_branch)
+Author: Symmes $<haichao1121@gmail.com>$
+Date:   Wed Nov 30 17:00:48 2022 -0500
+
+    question 12
+
+commit e19cf3dbef688897739729bcc9cadccf78d9f8a3
+Author: Symmes $<haichao1121@gmail.com>$
+Date:   Wed Nov 30 15:34:01 2022 -0500
+
+    question 9
+
+commit e3ac6ea6be081c06adbb8b1cb6673a92ca6f2a51
+Author: Symmes $<haichao1121@gmail.com>$
+Date:   Wed Nov 30 15:33:46 2022 -0500
+
+    question 9
+
+commit c11774854b06372dfd3a30c80d8548022a1472e1 (origin/master, master)
+Author: Symmes $<haichao1121@gmail.com>$
+Date:   Wed Nov 30 15:07:06 2022 -0500
+
+I used "git reset new_branch" to reset the repository to the older version.
+
+## (13)
+
+```{r}
+mod = lm(sales_volume~.-tract,data = df)
+summary(mod)
+```
+
+There is a racial bias at the level of sales volume. Larger size of black and white people, larger the sales volume.
+
+# (Q2)
+
+## (1)
+
+A compute node offers resources such as processors, volatile memory (RAM), permanent disk space (e.g. SSD), accelerators (e.g. GPU) etc. A core is the part of a processor that does the computations. (Ref: https://stackoverflow.com/questions/65603381/slurm-nodes-tasks-cores-and-cpus#:~:text=A%20compute%20node%20offers%20resources,processor%20that%20does%20the%20computations.)
+
+Log-in node is the connection between users and the server. Compute nodes are used to compute and there are a lot of compute nodes in a HPC.
+
+## (2)
+
+$ sdev -h
+sdev: start an interactive shell on a compute node.
+
+Usage: sdev [OPTIONS]
+    Optional arguments:
+        -c      number of CPU cores to request (OpenMP/pthreads, default: 1)
+        -n      number of tasks to request (MPI ranks, default: 1)
+        -N      number of nodes to request (default: 1)
+        -m      memory amount to request (default: 4GB)
+        -p      partition to run the job in (default: dev)
+        -t      time limit (default: 01:00:00)
+        -r      allocate resources from the named reservation (default: none)
+        -J      job name (default: sdev)
+        -q      quality of service to request for the job (default: norma
+
+$ srun -N 1 -n 4 –m 32GB –t 03:00:00
+
+## (3)
+
+The original directory won't change.
 
