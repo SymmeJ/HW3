@@ -51,14 +51,53 @@ for(i in 1:15){
   df = readLines(20000*(i-1)+1,20000*i+1)
   df1 = rbind(df1,df)
 }
+library(dplyr)
+df1 = summarise(group_by(res3,census_tract),sum(employee_size),sum(sales_volume))
+names(df1) <- c("census_tract","employee_size","sales_volume")
 ```
 
 # (4)
 
 ```{r}
-library(RPostgreSQL)
-drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, user='root', password='jhcbywzfb7', dbname='Hw3db')
+library(RMySQL)
+library(DBI)
+mydb <- dbConnect(MySQL(), user='root', password='jhcbywzfb7', dbname='Hw3db',host = "localhost", port = 3306)
+dbWriteTable(mydb, value = df1, name = "df1")
+```
+
+# (5)
+
+```{r}
+dbGetQuery(mydb, 'SELECT census_tract FROM df1 ORDER BY sales_volume DESC LIMIT 10')
+```
+
+# (6)
+
+On git by "git checkout -b new_branch".
+
+# (7)
+
+```{r}
+dat7 = read.csv("Data/AL.csv", header = TRUE)
+```
+```{r}
+dat7 = dat7[,c(19,20,22,45,64,65)]
+names(dat7) <- c("wealth_finder_score","find_div_1000","estimated_home_value_div_1000","state","census_2010_county_code","census_2010_tract")
+dat7 = dat7[dat7$estimated_home_value_div_1000 != 0,]
+dat7 = summarise(group_by(dat7,census_2010_tract),mean(wealth_finder_score),mean(find_div_1000),mean(estimated_home_value_div_1000),mean(census_2010_county_code))
+names(dat7) <- c("census_2010_tract","wealth_finder_score","find_div_1000","estimated_home_value_div_1000","census_2010_county_code")
+df2 = dat7
+```
+
+# (8)
+
+```{r}
+dbWriteTable(mydb, value = df2, name = "df2")
+```
+
+# (9)
+
+```{r}
 
 ```
 
