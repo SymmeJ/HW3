@@ -1,0 +1,15 @@
+---
+title: "STATS506 Homework1"
+author: "Haichao Ji"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r}
+rm(list = ls())
+setwd(getwd())
+```
+
+
+# (1)
+
