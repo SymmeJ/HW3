@@ -62,7 +62,7 @@ names(df1) <- c("census_tract","employee_size","sales_volume")
 library(RMySQL)
 library(DBI)
 mydb <- dbConnect(MySQL(), user='root', password='jhcbywzfb7', dbname='Hw3db',host = "localhost", port = 3306)
-dbWriteTable(mydb, value = df1, name = "df1")
+dbWriteTable(mydb, value = df1, name = "df1", overwrite = TRUE)
 ```
 
 # (5)
@@ -92,12 +92,37 @@ df2 = dat7
 # (8)
 
 ```{r}
-dbWriteTable(mydb, value = df2, name = "df2")
+dbWriteTable(mydb, value = df2, name = "df2",, overwrite = TRUE)
 ```
 
 # (9)
 
-```{r}
+HEAD is the current branch.
 
+# (10)
+
+```{r}
+library(tidycensus)
+dat10white = tidycensus::get_decennial(geography = "tract", state = c('AL'), variables = c("H006002"), year = 2010, geometry = TRUE)
+dat10black = tidycensus::get_decennial(geography = "tract", state = c('AL'), variables = c("H006003"), year = 2010, geometry = TRUE)
+dat10asian = tidycensus::get_decennial(geography = "tract", state = c('AL'), variables = c("H006005"), year = 2010, geometry = TRUE)
+tract = tidycensus::get_decennial(geography = "tract", state = c('AL'), variables = c("TRACT"), year = 2010, geometry = TRUE)
+dat10 = data.frame(GEOID = as.integer(dat10asian$GEOID), white = dat10white$value, black = dat10black$value, asian = dat10asian$value)
+tract = data.frame(GEOID = as.integer(tract$GEOID), tract = tract$value)
+df3 = merge(x = dat10, y = tract, by.x = "GEOID", by.y = "GEOID", all.x = TRUE, all.y = FALSE)
+dbWriteTable(mydb, value = df3, name = "df3", overwrite = TRUE)
 ```
+
+# (11)
+
+```{r}
+df23 = dbGetQuery(mydb, 'SELECT df3.white, df3.black, df3.asian, df3.tract, 
+                  df2.wealth_finder_score, df2.find_div_1000,
+                  df2.estimated_home_value_div_1000
+                  FROM df2 LEFT JOIN df3 ON df3.tract = df2.census_2010_tract')
+df11 = dbGetQuery(mydb, 'SELECT * FROM df1')
+df = merge(x = df23, y = df11[,-1], by.x = "tract", by.y = "census_tract",all.x = TRUE, all.y = FALSE)
+```
+
+# (12)
 
