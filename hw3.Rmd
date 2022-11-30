@@ -1,5 +1,5 @@
 ---
-title: "STATS506 Homework1"
+title: "STATS506 Homework3"
 author: "Haichao Ji"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -12,4 +12,53 @@ setwd(getwd())
 
 
 # (1)
+
+Global level git configuration files locate in $C:\backslash Users\backslash username\backslash .gitconfig$ and lobal level git configuration files locate in $<git-repo>\backslash .git\backslash config$ for Windows.\\
+
+credential.helper=osxkeychain
+
+filter.lfs.clean=git-lfs clean -- %f
+
+filter.lfs.smudge=git-lfs smudge -- %f
+
+filter.lfs.process=git-lfs filter-process
+
+filter.lfs.required=true
+
+user.name=Symmes
+
+user.email=haichao1121$@$gmail.com
+
+# (2)
+
+```{r}
+readLines = function(n1,n2){
+nms = read.delim("Data/2020_Business_Academic_QCQ.txt",header = FALSE, sep = ',', nrows = 1)
+df = read.delim("Data/2020_Business_Academic_QCQ.txt",header = FALSE, sep = ',', nrows = n2 - n1, skip = n1, fileEncoding="latin1")
+names(df) <- nms
+df[df==""] <- NA
+res = na.omit(df[,c(4,7,28,29,45)])
+names(res) <- c("state","county_code","employee_size","sales_volume","census_tract")
+res
+}
+```
+
+# (3)
+
+```{r}
+df1 = data.frame(row.names = c("state","county_code","employee_size","sales_volume","census_tract"))
+for(i in 1:15){
+  df = readLines(20000*(i-1)+1,20000*i+1)
+  df1 = rbind(df1,df)
+}
+```
+
+# (4)
+
+```{r}
+library(RPostgreSQL)
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, user='root', password='jhcbywzfb7', dbname='Hw3db')
+
+```
 
